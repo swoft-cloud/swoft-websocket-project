@@ -10,7 +10,6 @@
 
 namespace App\Validator;
 
-use App\Annotation\Mapping\AlphaDash;
 use Swoft\Validator\Annotation\Mapping\IsInt;
 use Swoft\Validator\Annotation\Mapping\IsString;
 use Swoft\Validator\Annotation\Mapping\Validator;
@@ -40,7 +39,6 @@ class TestValidator
 
     /**
      * @IsString()
-     * @AlphaDash(message="Passwords can only be alphabet, numbers, dashes, underscores")
      *
      * @var string
      */

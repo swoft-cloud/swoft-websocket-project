@@ -33,28 +33,6 @@ return [
         'enable'       => false,
         'json'         => false,
     ],
-    'httpServer'        => [
-        'class'    => HttpServer::class,
-        'port'     => 18306,
-        'listener' => [
-            'rpc' => bean('rpcServer')
-        ],
-        'process'  => [
-//            'monitor' => bean(MonitorProcess::class)
-//            'crontab' => bean(CrontabProcess::class)
-        ],
-        'on'       => [
-//            SwooleEvent::TASK   => bean(SyncTaskListener::class),  // Enable sync task
-            SwooleEvent::TASK   => bean(TaskListener::class),  // Enable task must task and finish event
-            SwooleEvent::FINISH => bean(FinishListener::class)
-        ],
-        /* @see HttpServer::$setting */
-        'setting' => [
-            'task_worker_num'       => 12,
-            'task_enable_coroutine' => true,
-            'worker_num'            => 6
-        ]
-    ],
     'httpDispatcher'    => [
         // Add global http middleware
         'middlewares'      => [
@@ -73,57 +51,8 @@ return [
         'username' => 'root',
         'password' => 'swoft123456',
     ],
-    'db2'               => [
-        'class'      => Database::class,
-        'dsn'        => 'mysql:dbname=test2;host=127.0.0.1',
-        'username'   => 'root',
-        'password'   => 'swoft123456',
-//        'dbSelector' => bean(DbSelector::class)
-    ],
-    'db2.pool' => [
-        'class'    => Pool::class,
-        'database' => bean('db2'),
-    ],
-    'db3'               => [
-        'class'    => Database::class,
-        'dsn'      => 'mysql:dbname=test2;host=127.0.0.1',
-        'username' => 'root',
-        'password' => 'swoft123456'
-    ],
-    'db3.pool'          => [
-        'class'    => Pool::class,
-        'database' => bean('db3')
-    ],
     'migrationManager'  => [
         'migrationPath' => '@database/Migration',
-    ],
-    'redis'             => [
-        'class'    => RedisDb::class,
-        'host'     => '127.0.0.1',
-        'port'     => 6379,
-        'database' => 0,
-        'option'   => [
-            'prefix' => 'swoft:'
-        ]
-    ],
-    'user'              => [
-        'class'   => ServiceClient::class,
-        'host'    => '127.0.0.1',
-        'port'    => 18307,
-        'setting' => [
-            'timeout'         => 0.5,
-            'connect_timeout' => 1.0,
-            'write_timeout'   => 10.0,
-            'read_timeout'    => 0.5,
-        ],
-        'packet'  => bean('rpcClientPacket')
-    ],
-    'user.pool'         => [
-        'class'  => ServicePool::class,
-        'client' => bean('user'),
-    ],
-    'rpcServer'         => [
-        'class' => ServiceServer::class,
     ],
     'wsServer'          => [
         'class'   => WebSocketServer::class,
@@ -135,38 +64,17 @@ return [
         'on'      => [
             // Enable http handle
             SwooleEvent::REQUEST => bean(RequestListener::class),
+            // Enable task must add task and finish event
+            SwooleEvent::TASK   => bean(TaskListener::class),
+            SwooleEvent::FINISH => bean(FinishListener::class)
         ],
-        'debug'   => 1,
-        // 'debug'   => env('SWOFT_DEBUG', 0),
+        'debug'   => env('SWOFT_DEBUG', 0),
         /* @see WebSocketServer::$setting */
         'setting' => [
             'log_file' => alias('@runtime/swoole.log'),
+            'task_worker_num'       => 2,
+            'task_enable_coroutine' => true,
+            'worker_num'            => 2
         ],
     ],
-    /** @see \Swoft\WebSocket\Server\WsMessageDispatcher */
-    'wsMsgDispatcher' => [
-        'middlewares' => [
-            \App\WebSocket\Middleware\GlobalWsMiddleware::class
-        ],
-    ],
-    /** @see \Swoft\Tcp\Server\TcpServer */
-    'tcpServer'         => [
-        'port'  => 18309,
-        'debug' => 1,
-    ],
-    /** @see \Swoft\Tcp\Protocol */
-    'tcpServerProtocol' => [
-        // 'type' => \Swoft\Tcp\Packer\JsonPacker::TYPE,
-        'type' => \Swoft\Tcp\Packer\SimpleTokenPacker::TYPE,
-        // 'openLengthCheck' => true,
-    ],
-    /** @see \Swoft\Tcp\Server\TcpDispatcher */
-    'tcpDispatcher' => [
-        'middlewares' => [
-            \App\Tcp\Middleware\GlobalTcpMiddleware::class
-        ],
-    ],
-    'cliRouter'         => [
-        // 'disabledGroups' => ['demo', 'test'],
-    ]
 ];
